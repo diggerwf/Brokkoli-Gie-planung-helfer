@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name der Datei, die am Ende geprüft und ausgeführt werden soll
-ENDSTART="start.sh"  # Hier kannst du den Dateinamen anpassen
+ENDSTART="start.sh"  # 🚀 Hier kannst du den Dateinamen anpassen
 
 # GitHub-Repository-URL und Branch definieren
 REPO_URL="https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
@@ -27,7 +27,7 @@ get_remote_hash() {
 }
 
 if [ -d "$REPO_DIR/.git" ]; then
-    echo "Repository gefunden. Prüfe auf Updates..."
+    echo "🔍 Repository gefunden. Prüfe auf Updates..."
 
     # Optional: lokale Änderungen verwerfen
     git reset --hard
@@ -39,7 +39,7 @@ if [ -d "$REPO_DIR/.git" ]; then
     REMOTE_HASH=$(get_remote_hash)
 
     if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
-        echo "Update für update.sh erkannt."
+        echo "📥 Update für update.sh erkannt. Lade neue Version..."
 
         # Update-Script kopieren, falls notwendig
         cp "$UPDATE_SCRIPT" "$TEMP_UPDATE_SCRIPT"
@@ -50,6 +50,7 @@ if [ -d "$REPO_DIR/.git" ]; then
         # Sicherstellen, dass das Script ausführbar ist
         chmod +x "$UPDATE_SCRIPT"
 
+        echo "⚙️  Das neue Script wird nun ausgeführt..."
         # Das neue Script ausführen
         bash "$UPDATE_SCRIPT"
 
@@ -58,26 +59,27 @@ if [ -d "$REPO_DIR/.git" ]; then
 
         exit 0
     else
-        echo "Das Repository ist bereits aktuell."
+        echo "✅ Das Repository ist bereits aktuell."
     fi
 else
-    echo "Repository nicht gefunden. Klone es..."
+    echo "📂 Repository nicht gefunden. Klone es von GitHub..."
     git clone "$REPO_URL" "$REPO_DIR"
 fi
 
 chmod +x "$UPDATE_SCRIPT"
 
-echo "Update abgeschlossen oder kein Update erforderlich."
+echo "✨ Update abgeschlossen oder kein Update erforderlich."
 
 # Am Ende: Prüfen, ob die festgelegte Datei existiert und ausführen
 
 TARGET_FILE="$REPO_DIR/$ENDSTART"
 
 if [ -f "$TARGET_FILE" ]; then
-    echo "Gefundene Datei: $TARGET_FILE wird ausführbar gemacht und ausgeführt..."
+    echo "🏁 Gefundene Datei: $TARGET_FILE wird ausführbar gemacht und ausgeführt..."
     chmod +x "$TARGET_FILE"
+    echo "--------------------------------------------------"
     "$TARGET_FILE"
 else
-    echo "Die Datei $TARGET_FILE wurde nicht gefunden. Das Skript wird beendet."
+    echo "❌ Die Datei $TARGET_FILE wurde nicht gefunden. Das Skript wird beendet."
     exit 1
 fi
