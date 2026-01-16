@@ -4,8 +4,11 @@ import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
 import csv 
 import os 
+import platform  # Neu: Für die Systemprüfung (Windows vs. Linux/macOS)
+import subprocess # Neu: Zum Starten der Update-Skripte
+import sys
 from datetime import datetime
-from PIL import Image, ImageTk  # Wichtig für das Logo
+from PIL import Image, ImageTk
 
 # Importiere die Logik 
 from db_connector import get_db_connection, setup_database_and_table, insert_pflanzen_data, test_db_connection, fetch_all_data, delete_data_by_id, save_pflanzen_plan, get_pflanzen_plan
@@ -46,7 +49,6 @@ class PflanzenApp(tk.Tk):
         if os.path.exists(image_path):
             try:
                 img = Image.open(image_path)
-                # Skalierung: Höhe auf 100 Pixel fixieren, Breite proportional
                 base_height = 100
                 w_percent = (base_height / float(img.size[1]))
                 w_size = int((float(img.size[0]) * float(w_percent)))
@@ -54,16 +56,14 @@ class PflanzenApp(tk.Tk):
                 
                 self.logo_img = ImageTk.PhotoImage(img)
                 self.logo_label = tk.Label(self, image=self.logo_img)
-                self.logo_label.pack(pady=10) # Abstand um das Logo
+                self.logo_label.pack(pady=10)
             except Exception as e:
                 print(f"Logo konnte nicht geladen werden: {e}")
 
     def __del__(self):
-        """Stoppt den Auto-Refresh-Loop beim Schließen der App."""
         self._toggle_auto_refresh(stop=True)
 
     def _set_maximized_state(self):
-        """Maximiert das Fenster je nach Betriebssystem."""
         current_os = os.name
         if current_os == 'nt':
             try:
@@ -82,7 +82,6 @@ class PflanzenApp(tk.Tk):
                     self.geometry(f"{screen_width}x{screen_height}+0+0")
         
     def create_menu_bar(self):
-        """Erstellt die obere Menüleiste."""
         menubar = tk.Menu(self)
         self.config(menu=menubar)
         file_menu = tk.Menu(menubar, tearoff=0)
@@ -93,7 +92,6 @@ class PflanzenApp(tk.Tk):
         db_menu.add_command(label="MySQL Einstellungen", command=self.show_db_settings)
 
     def create_main_tabs(self):
-        """Erstellt das Hauptmenü (Tabs)."""
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(pady=10, padx=10, expand=True, fill="both")
         self.notebook.bind("<<NotebookTabChanged>>", self._handle_tab_change)
@@ -110,6 +108,11 @@ class PflanzenApp(tk.Tk):
         self.notebook.add(self.tab_settings, text="⚙️ Einstellungen")
         self.create_settings_tab(self.tab_settings)
 
+        # NEUER TAB: Update
+        self.tab_update = tk.Frame(self.notebook, padx=10, pady=10)
+        self.notebook.add(self.tab_update, text="🔄 Update")
+        self.create_update_tab(self.tab_update)
+
     def _handle_tab_change(self, event):
         selected_tab = self.notebook.tab(self.notebook.select(), "text")
         if selected_tab == "📈 Daten anzeigen":
@@ -118,6 +121,58 @@ class PflanzenApp(tk.Tk):
         else:
             self._toggle_auto_refresh(stop=True)
 
+    # --- UPDATE LOGIK ---
+    def create_update_tab(self, parent_frame):
+        """Erstellt das Interface für die Update-Funktion."""
+        frame = tk.Frame(parent_frame)
+        frame.pack(expand=True)
+
+        tk.Label(frame, text="System-Update", font=('Arial', 14, 'bold')).pack(pady=10)
+        tk.Label(frame, text="Klicken Sie auf den Button, um die Anwendung zu aktualisieren.\nDie Anwendung wird automatisch geschlossen und das Update-Skript gestartet.").pack(pady=5)
+        
+        update_btn = tk.Button(
+            frame, 
+            text="🚀 Update jetzt ausführen", 
+            command=self.run_update_process,
+            bg='#2196F3', 
+            fg='white',
+            font=('Arial', 10, 'bold'),
+            padx=20,
+            pady=10
+        )
+        update_btn.pack(pady=20)
+
+    def run_update_process(self):
+        """Prüft das OS, führt Skripte aus und beendet die App."""
+        current_os = platform.system()
+        
+        try:
+            if current_os == "Windows":
+                script_path = "update.bat"
+                if os.path.exists(script_path):
+                    # Startet die Batch-Datei in einem neuen Fenster
+                    subprocess.Popen([script_path], shell=True)
+                else:
+                    raise FileNotFoundError(f"{script_path} wurde im Verzeichnis nicht gefunden.")
+
+            else:  # Linux oder macOS
+                script_path = "./update.sh"
+                if os.path.exists(script_path):
+                    # Setzt Ausführungsrechte (chmod +x)
+                    os.chmod(script_path, 0o755)
+                    # Startet die Shell-Datei
+                    subprocess.Popen([script_path], shell=False)
+                else:
+                    raise FileNotFoundError(f"{script_path} wurde im Verzeichnis nicht gefunden.")
+
+            # Anwendung ordnungsgemäß schließen
+            self.destroy()
+            sys.exit()
+
+        except Exception as e:
+            messagebox.showerror("Update Fehler", f"Fehler beim Starten des Updates:\n{str(e)}")
+
+    # --- RESTLICHE WIDGETS ---
     def create_input_widgets(self, parent_frame):
         main_frame = tk.Frame(parent_frame)
         main_frame.pack(padx=10, pady=10)
