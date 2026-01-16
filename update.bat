@@ -50,7 +50,7 @@ if exist ".git\" (
         exit /b
     ) else (
         echo ✅ Alles aktuell! 😎
-        )
+
     )
 ) else (
     echo 🏗️ Ersteinrichtung läuft... 🔧
@@ -65,10 +65,10 @@ if exist ".git\" (
 echo.
 echo ✨ Fertig! Dein Ordner ist jetzt mit !REPO_URL! synchron.
 
+pause
+
 if exist "!START_FILE!" (
     echo 🚀 Starte !START_FILE!...
     start "" "!START_FILE!"
 )
 
-
-pause
