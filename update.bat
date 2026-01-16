@@ -71,4 +71,4 @@ if exist "!START_FILE!" (
     echo 🚀 Starte !START_FILE!...
     start "" "!START_FILE!"
 )
-
+::test
