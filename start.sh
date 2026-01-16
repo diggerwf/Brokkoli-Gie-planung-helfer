@@ -5,67 +5,41 @@ echo "######################################"
 echo "# Ueberpruefe Python und Abhaengigkeiten"
 echo "######################################"
 
-# --- 1. System-Pakete pr¸fen (Tkinter & ImageTk) ---
-echo "Pr¸fe System-Abh‰ngigkeiten (Tkinter & PIL ImageTk)..."
-
-# Pr¸fe Tkinter
-python3 -c "import tkinter" &> /dev/null
-TK_STATUS=$?
-
-# Pr¸fe ImageTk
-python3 -c "from PIL import ImageTk" &> /dev/null
-IMAGETK_STATUS=$?
-
-if [ $TK_STATUS -ne 0 ] || [ $IMAGETK_STATUS -ne 0 ]; then
-    echo "--------------------------------------------------------------"
-    echo "System-Komponenten (python3-tk oder pil.imagetk) fehlen."
-    read -r -p "Sollen diese System-Pakete jetzt installiert werden? (J/N): " answer
-    if [[ "$answer" =~ ^[Jj]$ ]]; then
-        echo "Installiere System-Pakete (Sudo-Passwort erforderlich)..."
-        sudo apt-get update
-        sudo apt-get install -y python3-tk python3-pil.imagetk
-    else
-        echo "System-Installation ¸bersprungen. Das Programm wird evtl. nicht starten."
-    fi
-else
-    echo "? System-Komponenten sind bereit."
-fi
-
-# --- 2. Hilfsfunktion f¸r Python-Module (PIP) ---
-check_and_install_pip() {
+# --- Hilfsfunktion ---
+check_and_install() {
     local import_name="$1"
     local pip_name="$2"
     local description="$3"
 
     echo ""
-    echo "Pr¸fe, ob $description ($import_name) installiert ist..."
+    echo "Pr√ºfe, ob $description ($import_name) installiert ist..."
     python3 -c "import $import_name" &> /dev/null
 
     if [ $? -ne 0 ]; then
         echo "--------------------------------------------------------------"
         echo "Das Modul '$pip_name' ($description) fehlt."
-        read -r -p "Soll es jetzt via pip installiert werden? (J/N): " answer
+        read -r -p "Soll es jetzt installiert werden? (J/N): " answer
         if [[ "$answer" =~ ^[Jj]$ ]]; then
             pip3 install "$pip_name"
         else
-            echo "Installation ¸bersprungen."
+            echo "Installation √ºbersprungen."
         fi
     else
-        echo "? $description ist bereits installiert."
+        echo "‚úÖ $description ist bereits installiert."
     fi
 }
 
-# --- 3. Python Pr¸fung ---
+# --- Python Pr√ºfung ---
 if ! command -v python3 &> /dev/null; then
-    echo "? FEHLER: python3 nicht gefunden!"
+    echo "‚ùå FEHLER: python3 nicht gefunden!"
     exit 1
 fi
 
-# --- 4. PIP-Module pr¸fen ---
-check_and_install_pip "mysql.connector" "mysql-connector-python" "Datenbank"
-check_and_install_pip "PIL" "Pillow" "Bildanzeige"
+# --- Module pr√ºfen ---
+check_and_install "mysql.connector" "mysql-connector-python" "Datenbank"
+check_and_install "PIL" "Pillow" "Bildanzeige"
 
-# --- 5. Start ---
+# --- Start ---
 echo ""
 echo "Starte Pflanzen-GUI..."
 python3 pflanzen_gui.py &
