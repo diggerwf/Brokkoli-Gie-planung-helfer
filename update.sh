@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name der Datei, die am Ende geprüft und ausgeführt werden soll
-ENDSTART="start.sh"  # 🚀 Hier kannst du den Dateinamen anpassen
+ENDSTART="start.sh"
 
 # GitHub-Repository-URL und Branch definieren
 REPO_URL="https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
@@ -14,7 +14,6 @@ cd "$REPO_DIR" || exit
 
 # Dateien
 UPDATE_SCRIPT="$REPO_DIR/update.sh"
-TEMP_UPDATE_SCRIPT="$REPO_DIR/update.sh.2"
 
 # Funktion: aktueller Commit-Hash lokal
 get_current_hash() {
@@ -26,60 +25,55 @@ get_remote_hash() {
     git ls-remote "$REPO_URL" "$BRANCH" | awk '{print $1}'
 }
 
+# Prüfen, ob wir in einem Git-Repo sind
 if [ -d "$REPO_DIR/.git" ]; then
     echo "🔍 Repository gefunden. Prüfe auf Updates..."
-
-    # Optional: lokale Änderungen verwerfen
+    
     git reset --hard
-
-    # Nur fetch, kein push!
     git fetch origin
 
     LOCAL_HASH=$(get_current_hash)
     REMOTE_HASH=$(get_remote_hash)
 
     if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
-        echo "📥 Update für update.sh erkannt. Lade neue Version..."
-
-        # Update-Script kopieren, falls notwendig
-        cp "$UPDATE_SCRIPT" "$TEMP_UPDATE_SCRIPT"
-
-        # Pull aus dem Remote-Branch (ohne Push)
+        echo "📥 Update erkannt. Lade neue Version..."
         git pull origin "$BRANCH"
-
-        # Sicherstellen, dass das Script ausführbar ist
         chmod +x "$UPDATE_SCRIPT"
-
         echo "⚙️  Das neue Script wird nun ausgeführt..."
-        # Das neue Script ausführen
-        bash "$UPDATE_SCRIPT"
-
-        # Temporäre Datei entfernen
-        rm -f "$TEMP_UPDATE_SCRIPT"
-
-        exit 0
+        exec bash "$UPDATE_SCRIPT" # Benutze exec, um den Prozess sauber zu ersetzen
     else
-        echo "✅ Das Repository ist bereits aktuell."
+        echo "✅ Alles aktuell."
     fi
 else
-    echo "📂 Repository nicht gefunden. Klone es von GitHub..."
-    git clone "$REPO_URL" "$REPO_DIR"
+    echo "⚠️  Ordner ist kein Repository. Initialisiere neu..."
+    
+    # Prüfen, ob der Ordner Dateien enthält, aber kein .git hat
+    if [ "$(ls -A "$REPO_DIR")" ]; then
+        echo "📂 Ordner ist nicht leer. Bereite Umgebung für Klonen vor..."
+        # Wir verschieben den Inhalt in einen Temp-Ordner oder klonen direkt hinein
+        # Am sichersten für ein Update-Script: Git init und remote add
+        git init
+        git remote add origin "$REPO_URL"
+        git fetch
+        git checkout -t origin/"$BRANCH" -f
+    else
+        echo "📥 Klone Repository..."
+        git clone "$REPO_URL" "."
+    fi
 fi
 
 chmod +x "$UPDATE_SCRIPT"
+echo "✨ Update-Check beendet."
 
-echo "✨ Update abgeschlossen oder kein Update erforderlich."
-
-# Am Ende: Prüfen, ob die festgelegte Datei existiert und ausführen
-
+# Ausführung der Zieldatei
 TARGET_FILE="$REPO_DIR/$ENDSTART"
 
 if [ -f "$TARGET_FILE" ]; then
-    echo "🏁 Gefundene Datei: $TARGET_FILE wird ausführbar gemacht und ausgeführt..."
+    echo "🏁 Starte: $TARGET_FILE"
     chmod +x "$TARGET_FILE"
     echo "--------------------------------------------------"
-    "$TARGET_FILE"
+    ./"$ENDSTART"
 else
-    echo "❌ Die Datei $TARGET_FILE wurde nicht gefunden. Das Skript wird beendet."
+    echo "❌ Fehler: $TARGET_FILE nicht gefunden!"
     exit 1
 fi
