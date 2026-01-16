@@ -50,9 +50,6 @@ if exist ".git\" (
         exit /b
     ) else (
         echo ✅ Alles aktuell! 😎
-        if exist "!START_FILE!" (
-            echo 🚀 Starte !START_FILE!...
-            start "" "!START_FILE!"
         )
     )
 ) else (
@@ -72,5 +69,6 @@ if exist "!START_FILE!" (
     echo 🚀 Starte !START_FILE!...
     start "" "!START_FILE!"
 )
+
 
 pause
