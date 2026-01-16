@@ -418,9 +418,9 @@ class PflanzenApp(tk.Tk):
     def create_settings_tab(self, parent_frame):
         sf = tk.Frame(parent_frame); sf.pack(padx=10, pady=10)
         self.settings_entries = {}
-        for i, field in enumerate(['Host', 'Port', 'Benutzer', 'Passwort', 'Datenbank']):
+        for i, field in enumerate(['Host', 'Port', 'Benutzer', 'Password', 'Database']):
             tk.Label(sf, text=f"{field}:").grid(row=i, column=0, sticky='w')
-            e = tk.Entry(sf, width=30, show='*' if field == 'Passwort' else '')
+            e = tk.Entry(sf, width=30, show='*' if field == 'Password' else '')
             e.grid(row=i, column=1)
             self.settings_entries[field] = e
             key = field.lower().replace('benutzer', 'user')
