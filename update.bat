@@ -54,7 +54,7 @@ if exist ".git\" (
         echo 🆕 Selbst-Update erkannt! Starte Sicherheits-Prozess... 📥
         copy /y "%SELF_NAME%" "%TEMP_NAME%" >nul
         start "" "%TEMP_NAME%"
-        exit /b
+        exit
     ) else (
         echo ✅ Alles aktuell!
     )
@@ -80,6 +80,7 @@ if exist "!START_FILE!" (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
 exit
+
 
 
 
