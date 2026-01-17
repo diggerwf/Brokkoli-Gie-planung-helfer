@@ -66,7 +66,6 @@ if exist "!START_FILE!" (
 )
 ::exit
 
-::test Hi
 
 
 
