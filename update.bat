@@ -70,8 +70,8 @@ if exist ".git\" (
 
 echo.
 echo ✨ Fertig! Repo ist synchron.
-pause
-
+echo Drücke eine beliebige Taste, um das Programm zu starten...
+pause >nul
 :: 🚀 4. START DES HAUPTPROGRAMMS
 if exist "!START_FILE!" (
     echo 🚀 Starte !START_FILE!...
@@ -80,6 +80,7 @@ if exist "!START_FILE!" (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
 exit
+
 
 
 
