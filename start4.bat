@@ -22,7 +22,7 @@ if %errorlevel% NEQ 0 (
         echo ✅ Installation erfolgreich eingeleitet!
         echo ⚠️ WICHTIG: Schließe dieses Fenster jetzt und starte es NEU.
         echo Erst beim Neustart erkennt Windows das neue Python.
-        pause
+        call "%SELF_NAME%"
         exit
     ) else (
         echo.
@@ -32,6 +32,7 @@ if %errorlevel% NEQ 0 (
         echo.
         echo Bitte installiere Python im Store und starte diese Batch danach neu.
         pause
+        call "%SELF_NAME%"
         exit
     )
 )
@@ -58,5 +59,6 @@ if %errorlevel% NEQ 0 (
     pause
 
 )
+
 
 
