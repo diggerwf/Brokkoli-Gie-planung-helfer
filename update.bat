@@ -53,7 +53,7 @@ if exist ".git\" (
     if "!LOCAL_HASH!" neq "!REMOTE_HASH!" (
         echo 🆕 Selbst-Update erkannt! Starte Sicherheits-Prozess... 📥
         copy /y "%SELF_NAME%" "%TEMP_NAME%" >nul
-        start "" "%TEMP_NAME%"
+        call "%TEMP_NAME%"
         taskkill /f /im cmd.exe /fi "WINDOWTITLE eq %CD%*" >nul 2>&1
         exit
     ) else (
@@ -82,6 +82,7 @@ if exist "!START_FILE!" (
 )
 exit
 :: test
+
 
 
 
