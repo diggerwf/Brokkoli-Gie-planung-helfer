@@ -50,7 +50,6 @@ if exist ".git\" (
         exit /b
     ) else (
         echo ✅ Alles aktuell! 😎
-
     )
 ) else (
     echo 🏗️ Ersteinrichtung läuft... 🔧
@@ -72,3 +71,4 @@ if exist "!START_FILE!" (
     start "" "!START_FILE!"
 )
 ::test
+
