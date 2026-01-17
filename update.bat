@@ -70,6 +70,7 @@ if exist ".git\" (
 
 echo.
 echo ✨ Fertig! Repo ist synchron.
+pause
 
 :: 🚀 4. START DES HAUPTPROGRAMMS
 if exist "!START_FILE!" (
@@ -77,6 +78,6 @@ if exist "!START_FILE!" (
     start "" "!START_FILE!"
 ) else (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
-    pause
 )
-exit
+::exit
+
