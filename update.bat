@@ -21,13 +21,6 @@ git --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ❌ Git nicht gefunden! Bitte installiere Git.
     pause
-    if exist "!START_FILE!" (
-      echo 🚀 Starte ...
-      start "" "!START_FILE!"
-    ) else (
-        echo ⚠️ !START_FILE! wurde nicht gefunden.
-    )
-        exit
 )
 
 :: 🔄 2. UPDATE & URL-SYNC LOGIK
@@ -73,3 +66,4 @@ if exist "!START_FILE!" (
 exit
 
 ::test Hi
+
