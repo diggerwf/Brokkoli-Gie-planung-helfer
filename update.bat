@@ -75,11 +75,12 @@ pause
 :: 🚀 4. START DES HAUPTPROGRAMMS
 if exist "!START_FILE!" (
     echo 🚀 Starte !START_FILE!...
-    call "" "!START_FILE!"
+    call "!START_FILE!"
 ) else (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
 exit
+
 
 
 
