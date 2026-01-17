@@ -21,7 +21,7 @@ git --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo ❌ Git nicht gefunden! Bitte installiere Git!
     pause
-    exit /b
+    winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
 )
 
 :: 🔄 2. UPDATE & URL-SYNC LOGIK
@@ -67,6 +67,7 @@ if exist "!START_FILE!" (
 exit
 
 ::test Hi
+
 
 
 
