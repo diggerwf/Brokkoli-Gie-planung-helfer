@@ -19,7 +19,7 @@ echo 🔍 Prüfe auf Updates für: !REPO_URL!
 :: 🛠️ 1. GIT CHECK
 git --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ Git nicht gefunden! Bitte installiere Git.
+    echo ❌ Git nicht gefunden! Bitte installiere Git!
     pause
     exit /b
 )
@@ -67,5 +67,6 @@ if exist "!START_FILE!" (
 exit
 
 ::test Hi
+
 
 
