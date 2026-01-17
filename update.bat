@@ -3,8 +3,8 @@ chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 :: 🎨 Konfiguration
-set "REPO_URL=https://github.com/diggerwf/Brokkoli-Gie-planung-helfer/tree/Pflanzenprotokoll-Beta-3.git"
-set "BRANCH=main"
+set "REPO_URL=https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
+set "BRANCH=Pflanzenprotokoll-Beta-3"
 set "REPO_DIR=%~dp0"
 set "START_FILE=start4.bat"
 
@@ -69,4 +69,5 @@ if exist "!START_FILE!" (
 exit
 
     
+
 
