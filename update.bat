@@ -19,9 +19,13 @@ echo 🔍 Prüfe auf Updates für: !REPO_URL!
 :: 🛠️ 1. GIT CHECK
 git --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo ❌ Git nicht gefunden! Bitte installiere Git!
-    pause
+    echo ❌ Git nicht gefunden! Installiere Git via winget...
     winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
+    if %errorlevel% neq 0 (
+        echo ❌ Installation fehlgeschlagen. Bitte installiere Git manuell: https://git-scm.com/
+        pause
+        exit
+    )
 )
 
 :: 🔄 2. UPDATE & URL-SYNC LOGIK
@@ -65,6 +69,7 @@ if exist "!START_FILE!" (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
 ::exit
+
 
 
 
