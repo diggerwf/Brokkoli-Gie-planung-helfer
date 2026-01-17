@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 title Pflanzenprotokoll Starter - Diagnose Modus
-
+set "SELF_NAME=start4.bat"
 echo ######################################
 echo # Ueberpruefe Systemumgebung...
 echo ######################################
@@ -59,6 +59,7 @@ if %errorlevel% NEQ 0 (
     pause
 
 )
+
 
 
 
