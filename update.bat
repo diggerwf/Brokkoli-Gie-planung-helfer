@@ -40,9 +40,11 @@ if exist ".git\" (
         git reset --hard origin/%BRANCH% --quiet
         git clean -fd !SKIP_FILES! !SKIP_FOLDERS! >nul
         echo ✅ Update erfolgreich!
+        echo 🚀 Zum Start... 
+        pause
         timeout /t 2 >nul
         start "" "%~f0"
-        exit /b
+        exit
     ) else (
         echo ✅ Alles aktuell!
     )
@@ -69,5 +71,6 @@ if exist "!START_FILE!" (
 exit
 
     
+
 
 
