@@ -15,7 +15,7 @@ if %errorlevel% NEQ 0 (
     echo 🛠️ Versuche Installation via Winget...
     
     REM Wir nutzen hier die ID fuer Python 3.12, die vorhin bei dir funktioniert hat
-    winget install --id 9NCVDN91XZQP --source msstore --accept-package-agreements --accept-source-agreements
+    winget install --id Python Install Manager --source msstore --accept-package-agreements --accept-source-agreements
     
     if !errorlevel! EQU 0 (
         echo.
@@ -56,4 +56,5 @@ if %errorlevel% NEQ 0 (
     echo.
     echo ❌ Das Python-Programm wurde mit Fehlern beendet (Code: %errorlevel%).
     pause
+
 )
