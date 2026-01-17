@@ -23,7 +23,7 @@ if "%~nx0"=="%TEMP_NAME%" (
     git reset --hard origin/%BRANCH% --quiet
     git clean -fd %SKIP_FILES% %SKIP_FOLDERS% >nul
     echo ✅ Update abgeschlossen. Starte Hauptskript...
-    start "" "%SELF_NAME%"
+    call "%SELF_NAME%"
     exit
 )
 
@@ -80,6 +80,7 @@ if exist "!START_FILE!" (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
 exit
+
 
 
 
