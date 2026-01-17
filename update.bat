@@ -64,9 +64,10 @@ if exist "!START_FILE!" (
 ) else (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
-exit
+::exit
 
 ::test Hi
+
 
 
 
