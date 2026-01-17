@@ -47,14 +47,6 @@ if exist ".git\" (
         git clean -fd !SKIP_FILES! !SKIP_FOLDERS! >nul
         echo ✅ Update erfolgreich!
         echo 🚀 Zum Start... 
-        pause
-        if exist "!START_FILE!" (
-            echo 🚀 Starte ...
-            start "" "!START_FILE!"
-        ) else (
-            echo ⚠️ !START_FILE! wurde nicht gefunden.
-        )
-        exit
     ) else (
         echo ✅ Alles aktuell!
     )
@@ -81,6 +73,7 @@ if exist "!START_FILE!" (
 exit
 
     
+
 
 
 
