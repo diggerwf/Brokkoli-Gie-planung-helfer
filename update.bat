@@ -2,33 +2,42 @@
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-:: 🎨 Konfiguration
+:: 🎨 KONFIGURATION
 set "REPO_URL=https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
-set "BRANCH=Pflanzenprotokoll-Beta-3"
+set "BRANCH=main"
 set "REPO_DIR=%~dp0"
 set "START_FILE=start4.bat"
 set "SELF_NAME=update.bat"
 set "TEMP_NAME=temp_updater.bat"
 
 :: 🛡️ AUSNAHMEN-KONFIGURATION
-set "SKIP_FILES=-e "config.json" -e "settings.txt" -e "db_config.ini""
-set "SKIP_FOLDERS=-e "logs/" -e "saves/" -e "__pycache__""
+:: Diese Dateien werden von Git beim Aufräumen (clean) ignoriert
+set SKIP_PARAMS=-e "config.json" -e "settings.txt" -e "db_config.ini" -e "logs/" -e "saves/" -e "__pycache__"
 
 cd /d "%REPO_DIR%"
 
-:: 🔄 SCHRITT 0: BIN ICH DIE KOPIE?
+:: 🔄 SCHRITT 0: BIN ICH DIE KOPIE (DER HELFER)?
+:: Dieser Teil wird nur ausgeführt, wenn die temp_updater.bat aktiv ist
 if "%~nx0"=="%TEMP_NAME%" (
-    echo 🛠️ Temp-Updater aktiv. Überschreibe Original...
-    timeout /t 1 >nul
+    echo 🛠️ Update-Modus aktiv...
+    timeout /t 2 >nul
+    
+    :: Hier wird das Original auf der Festplatte überschrieben
+    git fetch origin %BRANCH% --quiet
     git reset --hard origin/%BRANCH% --quiet
-    git clean -fd %SKIP_FILES% %SKIP_FOLDERS% >nul
-    echo ✅ Update abgeschlossen. Starte Hauptskript...
-    call "%SELF_NAME%"
+    git clean -fd %SKIP_PARAMS% >nul
+    
+    echo ✅ Dateien wurden auf der Festplatte aktualisiert.
+    echo 🚀 Starte das neue Hauptskript...
+    
+    :: Wir starten das Original-Skript neu und beenden die Kopie
+    start "" "%SELF_NAME%"
     exit
 )
 
-:: 🗑️ SCHRITT 1: AUFRÄUMEN (Falls eine Kopie existiert)
-if exist "%TEMP_NAME%" del "%TEMP_NAME%"
+:: 🗑️ SCHRITT 1: AUFRÄUMEN
+:: Wenn das Original startet, löscht es eine eventuell vorhandene Kopie
+if exist "%TEMP_NAME%" del /f /q "%TEMP_NAME%"
 
 echo 🔍 Prüfe auf Updates für: !REPO_URL!
 
@@ -39,7 +48,7 @@ if %errorlevel% neq 0 (
     winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
 )
 
-:: 🔄 3. UPDATE & URL-SYNC LOGIK
+:: 🔄 3. UPDATE LOGIK
 if exist ".git\" (
     git remote set-url origin "!REPO_URL!"
     git fetch origin %BRANCH% --quiet
@@ -51,9 +60,14 @@ if exist ".git\" (
     echo 🌐 Online: !REMOTE_HASH:~0,7!
 
     if "!LOCAL_HASH!" neq "!REMOTE_HASH!" (
-        echo 🆕 Selbst-Update erkannt! Starte Sicherheits-Prozess... 📥
+        echo 🆕 Update verfügbar!
+        echo 📦 Erstelle temporäre Kopie zur Aktualisierung...
+        
+        :: Wir kopieren uns selbst, damit die Kopie das Original überschreiben kann
         copy /y "%SELF_NAME%" "%TEMP_NAME%" >nul
-        call "%TEMP_NAME%"
+        
+        :: Wir starten die Kopie und BEENDEN dieses Skript sofort (Wichtig!)
+        start "" "%TEMP_NAME%"
         exit
     ) else (
         echo ✅ Alles aktuell!
@@ -64,19 +78,20 @@ if exist ".git\" (
     git remote add origin "!REPO_URL!" 2>nul
     git fetch --all --quiet
     git reset --hard origin/%BRANCH% --quiet
-    git clean -fd %SKIP_FILES% %SKIP_FOLDERS% >nul
-    echo 🔗 Erfolgreich mit neuem Repo verbunden! 📦
+    git clean -fd %SKIP_PARAMS% >nul
+    echo 🔗 Repository erfolgreich eingerichtet!
 )
 
 echo.
-echo ✨ Fertig! Repo ist synchron.
-echo Drücke eine beliebige Taste, um das Programm zu starten...
+echo ✨ System ist bereit.
 
 :: 🚀 4. START DES HAUPTPROGRAMMS
 if exist "!START_FILE!" (
-    echo 🚀 Starte !START_FILE!...
+    echo 🚀 Starte !START_FILE! via CALL...
+    :: Hier wird CALL genutzt, damit das Fenster für dein Programm offen bleibt
     call "!START_FILE!"
 ) else (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
+    pause
 )
 exit
