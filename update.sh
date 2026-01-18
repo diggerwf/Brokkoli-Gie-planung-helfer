@@ -5,7 +5,7 @@ ENDSTART="start.sh"
 
 # GitHub-Repository-URL und Branch definieren
 REPO_URL="https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
-BRANCH="main"
+BRANCH="Pflanzenprotokoll-Beta-4"
 
 # Pfad zum Repository (aktueller Ordner)
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -88,3 +88,4 @@ else
     echo "❌ Fehler: $TARGET_FILE nicht gefunden!"
     exit 1
 fi
+
