@@ -2,7 +2,7 @@
 chcp 65001 >nul
 setlocal enabledelayedexpansion
 
-:: 🎨 Konfiguration
+:: 🎨 KONFIGURATION
 set "REPO_URL=https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
 set "BRANCH=main"
 set "REPO_DIR=%~dp0"
@@ -10,25 +10,31 @@ set "START_FILE=start4.bat"
 set "SELF_NAME=update.bat"
 set "TEMP_NAME=temp_updater.bat"
 
-:: 🛡️ AUSNAHMEN-KONFIGURATION
-set "SKIP_FILES=-e "config.json" -e "settings.txt" -e "db_config.ini""
-set "SKIP_FOLDERS=-e "logs/" -e "saves/" -e "__pycache__""
+:: 🛡️ AUSNAHMEN-KONFIGURATION (Ausschluss von git clean)
+set SKIP_PARAMS=-e "config.json" -e "settings.txt" -e "db_config.ini" -e "logs/" -e "saves/" -e "__pycache__"
 
 cd /d "%REPO_DIR%"
 
 :: 🔄 SCHRITT 0: BIN ICH DIE KOPIE?
 if "%~nx0"=="%TEMP_NAME%" (
-    echo 🛠️ Temp-Updater aktiv. Überschreibe Original...
-    timeout /t 1 >nul
+    echo 🛠️ Update-Modus aktiv...
+    timeout /t 2 >nul
+    
+    :: Update erzwingen
+    git fetch origin %BRANCH% --quiet
     git reset --hard origin/%BRANCH% --quiet
-    git clean -fd %SKIP_FILES% %SKIP_FOLDERS% >nul
-    echo ✅ Update abgeschlossen. Starte Hauptskript...
-    call "%SELF_NAME%"
+    git clean -fd %SKIP_PARAMS% >nul
+    
+    echo ✅ Dateien wurden aktualisiert.
+    echo 🚀 Starte Hauptskript neu...
+    
+    :: Startet das Original ohne Abhängigkeit von dieser Instanz
+    start "" "%SELF_NAME%"
     exit
 )
 
-:: 🗑️ SCHRITT 1: AUFRÄUMEN (Falls eine Kopie existiert)
-if exist "%TEMP_NAME%" del "%TEMP_NAME%"
+:: 🗑️ SCHRITT 1: AUFRÄUMEN
+if exist "%TEMP_NAME%" del /f /q "%TEMP_NAME%"
 
 echo 🔍 Prüfe auf Updates für: !REPO_URL!
 
@@ -51,9 +57,13 @@ if exist ".git\" (
     echo 🌐 Online: !REMOTE_HASH:~0,7!
 
     if "!LOCAL_HASH!" neq "!REMOTE_HASH!" (
-        echo 🆕 Selbst-Update erkannt! Starte Sicherheits-Prozess... 📥
+        echo 🆕 Update verfügbar! Starte Update-Prozess...
+        
+        :: Erstelle temporäre Kopie für das Update
         copy /y "%SELF_NAME%" "%TEMP_NAME%" >nul
-        call "%TEMP_NAME%"
+        
+        :: Starte die Kopie in neuem Prozess und beende dieses Skript sofort
+        start "" "%TEMP_NAME%"
         exit
     ) else (
         echo ✅ Alles aktuell!
@@ -64,13 +74,12 @@ if exist ".git\" (
     git remote add origin "!REPO_URL!" 2>nul
     git fetch --all --quiet
     git reset --hard origin/%BRANCH% --quiet
-    git clean -fd %SKIP_FILES% %SKIP_FOLDERS% >nul
-    echo 🔗 Erfolgreich mit neuem Repo verbunden! 📦
+    git clean -fd %SKIP_PARAMS% >nul
+    echo 🔗 Erfolgreich eingerichtet!
 )
 
 echo.
 echo ✨ Fertig! Repo ist synchron.
-echo Drücke eine beliebige Taste, um das Programm zu starten...
 
 :: 🚀 4. START DES HAUPTPROGRAMMS
 if exist "!START_FILE!" (
@@ -78,6 +87,6 @@ if exist "!START_FILE!" (
     call "!START_FILE!"
 ) else (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
+    pause
 )
 exit
-
