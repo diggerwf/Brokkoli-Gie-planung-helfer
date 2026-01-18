@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 
 :: 🎨 Konfiguration
 set "REPO_URL=https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
-set "BRANCH=Pflanzenprotokoll-Beta-3"
+set "BRANCH=main"
 set "REPO_DIR=%~dp0"
 set "START_FILE=start4.bat"
 set "SELF_NAME=update.bat"
@@ -80,3 +80,4 @@ if exist "!START_FILE!" (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
 )
 exit
+
