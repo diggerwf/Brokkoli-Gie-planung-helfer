@@ -43,7 +43,7 @@ def setup_database_and_table(cursor, db_name):
     except mysql.connector.Error as err:
         return False, f"Fehler beim Erstellen/Auswählen der Datenbank: {err}"
 
-    # Protokoll-Tabelle (Bereits aktualisiert mit ec_wert)
+    # Protokoll-Tabelle (Ist-Werte)
     PROTOKOLL_DESCRIPTION = f"""
     CREATE TABLE IF NOT EXISTS {PROTOKOLL_TABLE_NAME} (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,7 +62,8 @@ def setup_database_and_table(cursor, db_name):
       erstellungsdatum TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """
-    # Planungstabelle (NEUE Spalte: ec_wert)
+    
+    # Planungstabelle (Soll-Werte)
     PLANUNG_DESCRIPTION = f"""
     CREATE TABLE IF NOT EXISTS {PLANUNG_TABLE_NAME} (
       pflanzen_name VARCHAR(50) NOT NULL,
@@ -76,26 +77,22 @@ def setup_database_and_table(cursor, db_name):
       bio_bloom_ml_l FLOAT,
       top_max_ml_l FLOAT,
       ph_wert_ziel FLOAT,
-      ec_wert FLOAT,                         -- NEU: EC-Wert
+      ec_wert FLOAT,
       PRIMARY KEY (pflanzen_name, woche)
     )
     """
+    
     try:
         cursor.execute(PROTOKOLL_DESCRIPTION)
         cursor.execute(PLANUNG_DESCRIPTION)
         
-        # Sicherstellen, dass neue Spalten in beiden Tabellen hinzugefügt werden, falls sie bereits existieren
-        # Protokoll-Tabelle (falls EC-Wert in der vorherigen Runde vergessen wurde)
-        try:
-            cursor.execute(f"ALTER TABLE {PROTOKOLL_TABLE_NAME} ADD COLUMN ec_wert FLOAT AFTER ph_wert_ziel")
-        except mysql.connector.Error as err:
-            if err.errno != 1060: pass 
-            
-        # Planungstabelle (Hinzufügen des EC-Werts)
-        try:
-            cursor.execute(f"ALTER TABLE {PLANUNG_TABLE_NAME} ADD COLUMN ec_wert FLOAT AFTER ph_wert_ziel")
-        except mysql.connector.Error as err:
-            if err.errno != 1060: pass 
+        # Sicherstellen, dass die Spalte ec_wert existiert (für Updates bestehender Tabellen)
+        for table in [PROTOKOLL_TABLE_NAME, PLANUNG_TABLE_NAME]:
+            try:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN ec_wert FLOAT AFTER ph_wert_ziel")
+            except mysql.connector.Error as err:
+                if err.errno != 1060: # 1060 = Spalte existiert bereits, das ist okay
+                    print(f"Hinweis bei Alter Table {table}: {err.msg}")
                 
         return True, "Datenbankstruktur erfolgreich eingerichtet."
     except mysql.connector.Error as err:
@@ -122,12 +119,11 @@ def insert_pflanzen_data(cnx, datensatz):
         cursor.close()
         return False, f"Fehler beim Einfügen des Datensatzes: {err.msg}"
 
-# NEUE FUNKTION: Planung speichern (Anpassung für EC-Wert)
+
 def save_pflanzen_plan(cnx, planungsdatensatz):
     """Speichert oder aktualisiert einen SOLL-Datensatz (Planung) in der Tabelle."""
     cursor = cnx.cursor()
     
-    # NEU: ec_wert in Spaltenliste und UPDATE-Klausel aufgenommen
     save_plan = f"""
     INSERT INTO {PLANUNG_TABLE_NAME} 
     (pflanzen_name, woche, phase, lichtzyklus_h, root_juice_ml_l, 
@@ -156,6 +152,7 @@ def save_pflanzen_plan(cnx, planungsdatensatz):
         cursor.close()
         return False, f"Fehler beim Speichern der Planung: {err.msg}"
 
+
 def get_pflanzen_plan(config, plant_name, week):
     """Ruft den Plan für eine spezifische Pflanze und Woche ab."""
     cnx, result = get_db_connection(config, with_db=True)
@@ -179,6 +176,7 @@ def get_pflanzen_plan(config, plant_name, week):
         cursor.close()
         cnx.close()
         return None, None
+
 
 def fetch_all_data(config):
     """Holt alle Protokolleinträge aus der Datenbank."""
