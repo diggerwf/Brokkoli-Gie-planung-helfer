@@ -1,27 +1,31 @@
-🥦 Brokkoli-Gie-planung-helfer
+🌿 🥦 Brokkoli-Gießplanung-Helfer: Dein Ultimativer Grow-Begleiter 🥦 🌿
 Ein professionelles Desktop-Anwendungstool zur Protokollierung und Planung deiner Pflanzenzucht. Behalte den vollen Überblick über Nährstoffe, Lichtzyklen und Wasserwerte.
 🌟 Features
- * Soll-Planung: Erstelle detaillierte Wochenpläne für verschiedene Sorten (z.B. Blueberry Kush).
- * Ist-Datenerfassung: Dokumentiere täglich Messwerte wie pH-Wert, EC-Wert, Calmag, Bio-Grow und mehr.
- * Vergleichs-Ansicht: Sieh auf einen Blick, ob deine aktuellen Werte mit deiner Planung übereinstimmen.
- * Datenbank-Verwaltung: Alle Daten werden zentral gespeichert und können jederzeit eingesehen werden.
- * CSV-Export: Exportiere deine Daten für externe Analysen.
- * Integrierte Update-Funktion: Halte die Software mit nur einem Klick aktuell.
-🛠 Installation (Nur für Windows)
-Die Installation ist denkbar einfach gestaltet:
- * Lade die Datei installer.bat herunter.
- * Führe die installer.bat per Doppelklick aus.
- * Folge den Anweisungen im Terminal.
- * Nach Abschluss der Installation startet das Programm automatisch.
-> [!IMPORTANT]
-> Der Installer ist aktuell ausschließlich für Windows-Systeme optimiert.
-> 
+	•	Soll-Planung: Erstelle detaillierte Wochenpläne für verschiedene Sorten (z.B. Blueberry Kush).
+	•	Ist-Datenerfassung: Dokumentiere täglich Messwerte wie pH-Wert, EC-Wert, Calmag, Bio-Grow und mehr.
+	•	Vergleichs-Ansicht: Sieh auf einen Blick, ob deine aktuellen Werte mit deiner Planung übereinstimmen.
+	•	Datenbank-Verwaltung: Alle Daten werden zentral gespeichert und können jederzeit eingesehen werden.
+	•	CSV-Export: Exportiere deine Daten für externe Analysen.
+	•	Integrierte Update-Funktion: Halte die Software mit nur einem Klick aktuell.
+🛠 Installation
+🖥️ Für Windows (Empfohlen)
+Die Installation unter Windows ist vollständig automatisiert:
+	1	Lade die Datei installer.bat herunter.
+	2	Führe die installer.bat per Doppelklick aus.
+	3	Folge den Anweisungen im Terminal – das Programm startet nach Abschluss automatisch.
+🐧 Für Linux / Raspberry Pi (In Entwicklung)
+Da der native installer.sh noch in Arbeit ist, nutzt du am besten das update.sh Skript als Übergangslösung:
+	1	Lade die Datei update.sh herunter.
+	2	Öffne ein Terminal und mache das Skript ausführbar: chmod +x update.sh  
+	3	Führe das Skript aus: ./update.sh  
+Das Skript bereitet die Umgebung vor und startet die Anwendung.
 ⚠️ Wichtige Voraussetzung: Datenbank
-Damit das Programm funktioniert und deine Daten speichern kann, ist eine externe oder lokale Datenbank zwingend erforderlich.
-Du benötigst:
- * Einen installierten MySQL oder MariaDB Server.
- * Die Zugangsdaten (Host, Port, Benutzer, Passwort), die du im Programm unter dem Reiter "Einstellungen" hinterlegen musst.
-Ohne eine aktive MySQL/MariaDB-Verbindung können keine Daten gespeichert oder abgerufen werden!
+Das Programm benötigt zwingend eine Datenbank-Anbindung, um Daten dauerhaft zu speichern.
+Anforderungen:
+	•	Ein laufender MySQL oder MariaDB Server (lokal auf dem Gerät oder extern im Netzwerk).
+	•	Die Konfiguration erfolgt im Programm unter dem Reiter "Einstellungen".
+	•	Pflichtangaben: Host-IP, Port (Standard: 3306), Benutzername, Passwort und Datenbankname.
+[!CAUTION] Ohne eine korrekte Verbindung zu einer MySQL/MariaDB Datenbank können keine Daten gespeichert oder Pläne geladen werden.
 📝 Kontakt & Support
 Wenn du Feedback hast oder Fehler findest, erstelle bitte ein Issue hier auf GitHub.
 Viel Erfolg bei deinem Projekt! 🍏🥦
