@@ -10,7 +10,7 @@ set "START_FILE=start4.bat"
 set "SELF_NAME=update.bat"
 set "TEMP_NAME=temp_updater.bat"
 
-:: 🛡️ AUSNAHMEN-KONFIGURATION (Ausschluss von git clean)
+:: 🛡️ AUSNAHMEN-KONFIGURATION
 set SKIP_PARAMS=-e "config.json" -e "settings.txt" -e "db_config.ini" -e "logs/" -e "saves/" -e "__pycache__"
 
 cd /d "%REPO_DIR%"
@@ -20,7 +20,6 @@ if "%~nx0"=="%TEMP_NAME%" (
     echo 🛠️ Update-Modus aktiv...
     timeout /t 2 >nul
     
-    :: Update erzwingen
     git fetch origin %BRANCH% --quiet
     git reset --hard origin/%BRANCH% --quiet
     git clean -fd %SKIP_PARAMS% >nul
@@ -28,7 +27,8 @@ if "%~nx0"=="%TEMP_NAME%" (
     echo ✅ Dateien wurden aktualisiert.
     echo 🚀 Starte Hauptskript neu...
     
-    :: Startet das Original ohne Abhängigkeit von dieser Instanz
+    :: Hier muss 'start' bleiben, damit der Temp-Updater sich schließen kann
+    :: und das neue Hauptskript die Temp-Datei löschen darf.
     start "" "%SELF_NAME%"
     exit
 )
@@ -57,12 +57,8 @@ if exist ".git\" (
     echo 🌐 Online: !REMOTE_HASH:~0,7!
 
     if "!LOCAL_HASH!" neq "!REMOTE_HASH!" (
-        echo 🆕 Update verfügbar! Starte Update-Prozess...
-        
-        :: Erstelle temporäre Kopie für das Update
+        echo 🆕 Update gefunden! Bereite Installation vor...
         copy /y "%SELF_NAME%" "%TEMP_NAME%" >nul
-        
-        :: Starte die Kopie in neuem Prozess und beende dieses Skript sofort
         start "" "%TEMP_NAME%"
         exit
     ) else (
@@ -75,7 +71,6 @@ if exist ".git\" (
     git fetch --all --quiet
     git reset --hard origin/%BRANCH% --quiet
     git clean -fd %SKIP_PARAMS% >nul
-    echo 🔗 Erfolgreich eingerichtet!
 )
 
 echo.
@@ -83,7 +78,8 @@ echo ✨ Fertig! Repo ist synchron.
 
 :: 🚀 4. START DES HAUPTPROGRAMMS
 if exist "!START_FILE!" (
-    echo 🚀 Starte !START_FILE!...
+    echo 🚀 Starte !START_FILE! via CALL...
+    :: Hier wird jetzt CALL verwendet
     call "!START_FILE!"
 ) else (
     echo ⚠️ !START_FILE! wurde nicht gefunden.
