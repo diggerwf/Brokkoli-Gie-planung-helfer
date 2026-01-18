@@ -95,4 +95,5 @@ if exist "!START_FILE!" (
     pause
 )
 exit
+::test
 
