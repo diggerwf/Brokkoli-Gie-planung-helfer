@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 title Pflanzenprotokoll Starter - Diagnose Modus
-
+set "SELF_NAME=start4.bat"
 echo ######################################
 echo # Ueberpruefe Systemumgebung...
 echo ######################################
@@ -15,14 +15,14 @@ if %errorlevel% NEQ 0 (
     echo 🛠️ Versuche Installation via Winget...
     
     REM Wir nutzen hier die ID fuer Python 3.12, die vorhin bei dir funktioniert hat
-    winget install --id 9NCVDN91XZQP --source msstore --accept-package-agreements --accept-source-agreements
+    winget install --id Python.PythonInstallManager -e --source winget --accept-package-agreements --accept-source-agreements
     
     if !errorlevel! EQU 0 (
         echo.
         echo ✅ Installation erfolgreich eingeleitet!
         echo ⚠️ WICHTIG: Schließe dieses Fenster jetzt und starte es NEU.
         echo Erst beim Neustart erkennt Windows das neue Python.
-        pause
+        call "%SELF_NAME%"
         exit
     ) else (
         echo.
@@ -32,6 +32,7 @@ if %errorlevel% NEQ 0 (
         echo.
         echo Bitte installiere Python im Store und starte diese Batch danach neu.
         pause
+        call "%SELF_NAME%"
         exit
     )
 )
@@ -56,4 +57,9 @@ if %errorlevel% NEQ 0 (
     echo.
     echo ❌ Das Python-Programm wurde mit Fehlern beendet (Code: %errorlevel%).
     pause
+
 )
+
+
+
+

@@ -9,11 +9,19 @@ BRANCH="main"
 
 # Pfad zum Repository (aktueller Ordner)
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
-
 cd "$REPO_DIR" || exit
 
-# Dateien
+# Dateien definieren
 UPDATE_SCRIPT="$REPO_DIR/update.sh"
+
+# --- NEU: Reparatur-Funktion ---
+fix_format() {
+    echo "🧹 Bereinige Skript-Formate..."
+    # Entfernt Windows-Zeilenenden (\r) aus allen .sh Dateien
+    sed -i 's/\r$//' "$REPO_DIR"/*.sh
+    # Setzt Ausführungsrechte für alle .sh Dateien
+    chmod +x "$REPO_DIR"/*.sh
+}
 
 # Funktion: aktueller Commit-Hash lokal
 get_current_hash() {
@@ -38,20 +46,22 @@ if [ -d "$REPO_DIR/.git" ]; then
     if [ "$LOCAL_HASH" != "$REMOTE_HASH" ]; then
         echo "📥 Update erkannt. Lade neue Version..."
         git pull origin "$BRANCH"
-        chmod +x "$UPDATE_SCRIPT"
+        
+        # WICHTIG: Nach dem Pull sofort reparieren
+        fix_format
+        
         echo "⚙️  Das neue Script wird nun ausgeführt..."
-        exec bash "$UPDATE_SCRIPT" # Benutze exec, um den Prozess sauber zu ersetzen
+        exec bash "$UPDATE_SCRIPT"
     else
         echo "✅ Alles aktuell."
+        # Auch wenn aktuell, sicherheitshalber Rechte prüfen
+        fix_format
     fi
 else
     echo "⚠️  Ordner ist kein Repository. Initialisiere neu..."
     
-    # Prüfen, ob der Ordner Dateien enthält, aber kein .git hat
     if [ "$(ls -A "$REPO_DIR")" ]; then
         echo "📂 Ordner ist nicht leer. Bereite Umgebung für Klonen vor..."
-        # Wir verschieben den Inhalt in einen Temp-Ordner oder klonen direkt hinein
-        # Am sichersten für ein Update-Script: Git init und remote add
         git init
         git remote add origin "$REPO_URL"
         git fetch
@@ -60,9 +70,10 @@ else
         echo "📥 Klone Repository..."
         git clone "$REPO_URL" "."
     fi
+    # Nach Initialisierung reparieren
+    fix_format
 fi
 
-chmod +x "$UPDATE_SCRIPT"
 echo "✨ Update-Check beendet."
 
 # Ausführung der Zieldatei
@@ -70,8 +81,8 @@ TARGET_FILE="$REPO_DIR/$ENDSTART"
 
 if [ -f "$TARGET_FILE" ]; then
     echo "🏁 Starte: $TARGET_FILE"
-    chmod +x "$TARGET_FILE"
     echo "--------------------------------------------------"
+    # Wir rufen es explizit mit ./ auf
     ./"$ENDSTART"
 else
     echo "❌ Fehler: $TARGET_FILE nicht gefunden!"
