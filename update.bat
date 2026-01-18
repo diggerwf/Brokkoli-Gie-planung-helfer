@@ -31,7 +31,7 @@ if "%~nx0"=="%TEMP_NAME%" (
     echo 🚀 Starte das neue Hauptskript...
     
     :: Wir starten das Original-Skript neu und beenden die Kopie
-    start "" "%SELF_NAME%"
+    call "%SELF_NAME%"
     exit
 )
 
@@ -67,7 +67,7 @@ if exist ".git\" (
         copy /y "%SELF_NAME%" "%TEMP_NAME%" >nul
         
         :: Wir starten die Kopie und BEENDEN dieses Skript sofort (Wichtig!)
-        start "" "%TEMP_NAME%"
+        call "%TEMP_NAME%"
         exit
     ) else (
         echo ✅ Alles aktuell!
@@ -95,3 +95,4 @@ if exist "!START_FILE!" (
     pause
 )
 exit
+
