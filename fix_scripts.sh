@@ -3,37 +3,66 @@
 # ==========================================
 # KONFIGURATION
 # ==========================================
-# Hier die Datei definieren, die am Ende gestartet werden soll:
+# Das Skript, das nach der Reparatur gestartet werden soll
 TARGET_TO_CALL="update.sh"
-# ==========================================
+# Liste der benötigten Tools
+REQUIRED_TOOLS=("git" "dos2unix" "curl")
 
-echo "🔧 Starte System-Reparatur (fix_scripts.sh)..."
+echo "=================================================="
+echo "⚙️  SYSTEM-REPARATUR (fix_scripts.sh)"
+echo "=================================================="
 
-# 1. Prüfen und Installieren von dos2unix
-if ! command -v dos2unix &> /dev/null; then
-    echo "📦 'dos2unix' nicht gefunden. Versuche Installation..."
-    sudo apt update && sudo apt install -y dos2unix
-    if [ $? -ne 0 ]; then
-        echo "❌ Fehler: Installation von dos2unix fehlgeschlagen. Prüfe deine Internetverbindung."
-        exit 1
+# 1. TOOL-CHECK & AUTOMATISCHE INSTALLATION
+echo "🔍 Prüfe benötigte Werkzeuge..."
+MISSING_TOOLS=()
+
+for tool in "${REQUIRED_TOOLS[@]}"; do
+    if ! command -v "$tool" &> /dev/null; then
+        MISSING_TOOLS+=("$tool")
     fi
+done
+
+if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
+    echo "📦 Fehlende Tools gefunden: ${MISSING_TOOLS[*]}"
+    echo "📥 Starte Installation..."
+    sudo apt update
+    for tool in "${MISSING_TOOLS[@]}"; do
+        sudo apt install -y "$tool"
+    done
+    echo "✅ Tools erfolgreich installiert."
+else
+    echo "✅ Alle Werkzeuge (git, dos2unix, curl) sind bereit."
 fi
 
-# 2. Alle Skripte im Ordner reparieren
-echo "🧹 Entferne Windows-Zeilenenden aus allen .sh Dateien..."
+# 2. GIT-KONFLIKT-LÖSUNG (Hard Reset)
+# Dies löst den Fehler: "unversionierte Dateien würden überschrieben werden"
+if [ -d ".git" ]; then
+    echo "📦 Git-Repository erkannt. Erzwinge Update vom Server..."
+    git fetch --all &> /dev/null
+    # Reset auf den Stand des Servers (überschreibt lokale kaputte Skripte)
+    git reset --hard origin/main
+else
+    echo "⚠️  Kein Git-Repository gefunden. Überspringe Git-Reset."
+fi
+
+# 3. FORMAT-REPARATUR (CRLF -> LF)
+# Wir reparieren alle .sh Dateien im aktuellen Ordner
+echo "🧹 Entferne Windows-Zeilenenden aus allen Skripten..."
 dos2unix *.sh &> /dev/null
 
-# 3. Alle Skripte ausführbar machen
+# 4. RECHTE SETZEN
 echo "🔑 Setze Ausführungsrechte (chmod +x)..."
 chmod +x *.sh
 
-# 4. Den Call ausführen
+# 5. ABSCHLUSS & ÜBERGABE
 if [ -f "./$TARGET_TO_CALL" ]; then
-    echo "🚀 Reparatur abgeschlossen. Rufe auf: $TARGET_TO_CALL"
+    echo "--------------------------------------------------"
+    echo "🚀 Reparatur abgeschlossen! Starte nun: $TARGET_TO_CALL"
     echo "--------------------------------------------------"
     ./"$TARGET_TO_CALL"
 else
-    echo "⚠️  Warnung: Die Datei '$TARGET_TO_CALL' wurde nicht gefunden."
-    echo "Vorhandene Skripte:"
-    ls *.sh
+    echo "--------------------------------------------------"
+    echo "❌ Fehler: '$TARGET_TO_CALL' wurde nicht gefunden."
+    echo "Vorhandene Skripte im Ordner:"
+    ls -l *.sh
 fi
