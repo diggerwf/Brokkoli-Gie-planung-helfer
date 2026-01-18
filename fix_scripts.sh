@@ -40,7 +40,7 @@ if [ -d ".git" ]; then
     echo "📦 Git-Repository erkannt. Erzwinge Update vom Server..."
     git fetch --all &> /dev/null
     # Reset auf den Stand des Servers (überschreibt lokale kaputte Skripte)
-    git reset --hard origin/main
+    git reset --hard origin/$(grep 'BRANCH=' update.sh | cut -d'"' -f2)
 else
     echo "⚠️  Kein Git-Repository gefunden. Überspringe Git-Reset."
 fi
@@ -66,3 +66,4 @@ else
     echo "Vorhandene Skripte im Ordner:"
     ls -l *.sh
 fi
+
