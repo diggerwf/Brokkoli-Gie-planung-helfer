@@ -2,8 +2,8 @@
 setlocal enabledelayedexpansion
 
 :: --- KONFIGURATION ---
-set "REPO_URL=https://github.com/diggerwf/installer-for-windows.git"
-set "BRANCH=beta-1"
+set "REPO_URL=https://github.com/diggerwf/Brokkoli-Gie-planung-helfer.git"
+set "BRANCH=main"
 set "START_FILE=start4.bat"
 :: ---------------------
 
