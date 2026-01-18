@@ -16,9 +16,9 @@ from config_manager import load_config, save_config
 
 # Definierte Reihenfolge der Nährstofffelder (muss mit DB übereinstimmen)
 PLANNING_FIELDS = [
-    "phase", "lichtzyklus_h", "ec_wert", "root_juice_ml_l", "calmag_ml_l", 
+    "phase", "lichtzyklus_h", "root_juice_ml_l", "calmag_ml_l", 
     "bio_grow_ml_l", "acti_alc_ml_l", "bio_bloom_ml_l", "top_max_ml_l", 
-    "ph_wert_ziel"
+    "ph_wert_ziel", "ec_wert"
 ]
 
 # NEU: Optionen für Dropdowns
@@ -202,8 +202,14 @@ class PflanzenApp(tk.Tk):
         # Dropdown für Plan-Auswahl oben rechts
         tk.Label(plan_display_frame, text="Plan wählen:", font=('Arial', 9, 'bold')).grid(row=0, column=0, sticky='w')
         self.plan_auswahl_combobox = ttk.Combobox(plan_display_frame, state="readonly", width=25)
-        self.plan_auswahl_combobox.grid(row=1, column=0, pady=(0, 10), sticky='w')
+        self.plan_auswahl_combobox.grid(row=1, column=0, pady=(0, 5), sticky='w')
         self.plan_auswahl_combobox.bind("<<ComboboxSelected>>", self._on_plan_dropdown_select)
+
+        # NEU: Dropdown für Wochen-Auswahl direkt darunter
+        tk.Label(plan_display_frame, text="Woche wählen:", font=('Arial', 9, 'bold')).grid(row=2, column=0, sticky='w')
+        self.wochen_auswahl_combobox = ttk.Combobox(plan_display_frame, state="readonly", width=25)
+        self.wochen_auswahl_combobox.grid(row=3, column=0, pady=(0, 10), sticky='w')
+        self.wochen_auswahl_combobox.bind("<<ComboboxSelected>>", self._on_week_dropdown_select)
 
         self.fields = [
             ("Datum (JJJJ-MM-TT)", "entry_datum"),
@@ -222,7 +228,7 @@ class PflanzenApp(tk.Tk):
         ]
         
         self.entries = {}
-        plan_display_row = 2 # Startreihe für die Soll-Werte (nach Dropdown)
+        plan_display_row = 4 # Startreihe für die Soll-Werte angepasst wegen zweitem Dropdown
         
         for i, (label_text, key) in enumerate(self.fields):
             # Label in Eingabespalte
@@ -284,18 +290,46 @@ class PflanzenApp(tk.Tk):
             print(f"Fehler beim Laden der Planungsliste: {e}")
 
     def _on_plan_dropdown_select(self, event):
-        """Übernimmt den Namen aus dem Dropdown in das Eingabefeld."""
+        """Übernimmt den Namen und lädt verfügbare Wochen in das zweite Dropdown."""
         name = self.plan_auswahl_combobox.get()
+        # Merke dir die aktuell gewählte Woche, um sie nach dem Refresh ggf. wieder zu setzen
+        aktuelle_woche = self.wochen_auswahl_combobox.get()
+        
         if name:
             self.entries['entry_name'].delete(0, tk.END)
             self.entries['entry_name'].insert(0, name)
             
-            # FEHLERBEHEBUNG: Wenn Woche leer ist, setze Woche 1 als Standard, 
-            # damit sofort Daten geladen werden können.
-            if not self.entries['entry_woche'].get().strip():
-                self.entries['entry_woche'].insert(0, "1")
-                
-            self.entries['entry_woche'].focus_set()
+            # Verfügbare Wochen für diesen Namen aus DB holen
+            try:
+                cnx, _ = get_db_connection(self.db_config)
+                if cnx:
+                    cursor = cnx.cursor()
+                    cursor.execute(f"USE {self.db_config['database']}")
+                    cursor.execute("SELECT woche FROM pflanzenplanung WHERE pflanzen_name = %s ORDER BY woche ASC", (name,))
+                    weeks = [row[0] for row in cursor.fetchall()]
+                    self.wochen_auswahl_combobox['values'] = weeks
+                    
+                    if weeks:
+                        # Falls die vorherige Woche noch in der neuen Liste ist, behalte sie bei
+                        if aktuelle_woche and str(aktuelle_woche) in [str(w) for w in weeks]:
+                            self.wochen_auswahl_combobox.set(aktuelle_woche)
+                        else:
+                            self.wochen_auswahl_combobox.current(0) 
+                        self._on_week_dropdown_select(None) 
+                    else:
+                        self.wochen_auswahl_combobox.set('')
+                        
+                    cursor.close()
+                    cnx.close()
+            except Exception as e:
+                print(f"Fehler beim Laden der Wochen: {e}")
+
+    def _on_week_dropdown_select(self, event):
+        """Übernimmt die gewählte Woche in das Eingabefeld und lädt den Plan."""
+        woche = self.wochen_auswahl_combobox.get()
+        if woche:
+            self.entries['entry_woche'].delete(0, tk.END)
+            self.entries['entry_woche'].insert(0, woche)
             self._load_plan_for_current_inputs()
 
     def _delete_plan_logic(self):
@@ -317,6 +351,8 @@ class PflanzenApp(tk.Tk):
                     messagebox.showinfo("Erfolg", f"Planung '{name}' wurde gelöscht.")
                     self._refresh_plan_list()
                     self.plan_auswahl_combobox.set('')
+                    self.wochen_auswahl_combobox.set('')
+                    self.wochen_auswahl_combobox['values'] = []
                     self._load_plan_for_current_inputs()
             except Exception as e:
                 messagebox.showerror("Fehler", f"Plan konnte nicht gelöscht werden: {e}")
@@ -408,14 +444,14 @@ class PflanzenApp(tk.Tk):
         fields_map = {
             "phase": "Phase",
             "lichtzyklus_h": "Lichtzyklus (h)",
-            "ec_wert": "EC-Wert (Soll)",
             "root_juice_ml_l": "Root·Juice (ml/L)",
             "calmag_ml_l": "Calmag (ml/L)",
             "bio_grow_ml_l": "Bio·Grow (ml/L)",
             "acti_alc_ml_l": "Acti·a•alc (ml/L)",
             "bio_bloom_ml_l": "Bio·Bloom (ml/L)",
             "top_max_ml_l": "Top·Max (ml/L)",
-            "ph_wert_ziel": "pH-Wert (Ziel)"
+            "ph_wert_ziel": "pH-Wert (Ziel)",
+            "ec_wert": "EC-Wert (Soll)"
         }
 
         plan_frame = tk.Frame(plan_window)
@@ -497,8 +533,12 @@ class PflanzenApp(tk.Tk):
         if success:
             messagebox.showinfo("Erfolg", message)
             window.destroy()
-            self._load_plan_for_current_inputs()
+            
+            # Aktualisiert Pflanzennamen und stellt sicher, dass Wochen-Dropdown neu geladen wird
             self._refresh_plan_list()
+            self.plan_auswahl_combobox.set(plant_name) # Setzt den Namen im Dropdown wieder auf den gerade gespeicherten
+            self._on_plan_dropdown_select(None) # Löst das Laden der Wochen aus
+            self._load_plan_for_current_inputs()
         else:
             messagebox.showerror("Speicherfehler", message)
 
