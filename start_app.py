@@ -34,19 +34,21 @@ def check_and_install_packages():
 
     for import_name, pip_name, description in REQUIRED_PACKAGES:
         try:
-            # Versuch, das Modul zu importieren
+            # Versuch, das Modul zu laden
             __import__(import_name)
+            print(f"✅ Modul vorhanden: {import_name}")
         except ImportError:
-            # Wenn es fehlt, fragen wir den Nutzer
-            user_decision = messagebox.askyesno(
-                "Fehlende Bibliothek",
-                f"Die Bibliothek '{pip_name}' ({description}) fehlt.\n\n"
-                "Soll sie jetzt automatisch installiert werden?"
-            )
+            print(f"❌ Modul fehlt: {import_name}")
             
-            if user_decision:
+            # Grafische Abfrage beim Nutzer
+            frage = (f"Die Bibliothek '{pip_name}' ({description}) fehlt.\n\n"
+                     f"Soll sie jetzt automatisch installiert werden?")
+            
+            if messagebox.askyesno("Abhängigkeit installieren", frage):
                 try:
+                    # Pip vorbereiten (nur wenn wirklich installiert werden muss)
                     ensure_pip()
+                    
                     print(f"📥 Installiere {pip_name}...")
                     subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
                     print(f"✅ {pip_name} erfolgreich installiert.")
@@ -80,7 +82,7 @@ def start_main_app():
 if __name__ == "__main__":
     # Schritt 1: Pakete prüfen
     if check_and_install_packages():
-        # Schritt 2: Wenn alles da ist, Haupt-App starten
+        # Schritt 2: Wenn alles okay ist, Haupt-App starten
         start_main_app()
     else:
-        print("❌ Start abgebrochen, da nicht alle Pakete vorhanden sind.")
+        print("❌ Start abgebrochen, da Komponenten fehlen.")
