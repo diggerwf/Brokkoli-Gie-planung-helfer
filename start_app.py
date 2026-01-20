@@ -12,21 +12,8 @@ REQUIRED_PACKAGES = [
     ("pandas", "pandas", "fuer die Datenverarbeitung und Tabellen")
 ]
 
-def ensure_pip():
-    """Stellt sicher, dass pip aktuell ist, bevor Pakete installiert werden."""
-    try:
-        print("🔍 Bereite Paket-Manager (pip) vor...")
-        # Aktualisiert pip im Hintergrund (ohne Bestätigung)
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"], 
-                              stdout=subprocess.DEVNULL)
-        return True
-    except Exception as e:
-        print(f"⚠️ Warnung beim pip-Update: {e}")
-        return True # Wir versuchen es trotzdem weiter
-
 def check_and_install_packages():
-    """Prüft Abhängigkeiten und installiert sie bei Bedarf grafisch."""
-    # Unsichtbares Tkinter-Hauptfenster für Dialoge
+    """Prüft jede Bibliothek einzeln durch einen echten Import-Test."""
     root = tk.Tk()
     root.withdraw()
     
@@ -34,62 +21,70 @@ def check_and_install_packages():
 
     for import_name, pip_name, description in REQUIRED_PACKAGES:
         try:
-            # Verbesserte Prüfung: Versucht das Modul wirklich zu laden
-            if import_name == "PIL":
-                from PIL import Image
-            elif import_name == "pandas":
+            # EINZELPRÜFUNG:
+            if import_name == "pandas":
                 import pandas as pd
+                pd.DataFrame() # Testet, ob pandas wirklich funktioniert
+            elif import_name == "PIL":
+                from PIL import Image, ImageTk
             else:
                 __import__(import_name)
             
-            print(f"✅ Modul vorhanden: {import_name}")
-        except (ImportError, ModuleNotFoundError):
-            print(f"❌ Modul fehlt oder fehlerhaft: {import_name}")
+            print(f"✅ OK: {import_name} ist einsatzbereit.")
             
-            # Grafische Abfrage beim Nutzer
+        except (ImportError, ModuleNotFoundError, Exception):
+            print(f"❌ FEHLER: {import_name} fehlt oder ist defekt.")
+            
+            # Entscheidungshilfe für Linux vs. Windows
+            is_linux = sys.platform.startswith('linux')
+            apt_cmd = f"sudo apt install python3-{pip_name.lower().replace('-python', '')}"
+            
             frage = (f"Die Bibliothek '{pip_name}' ({description}) fehlt.\n\n"
-                     f"Soll sie jetzt automatisch installiert werden?")
+                     f"Soll versucht werden, sie automatisch zu installieren?\n")
             
-            if messagebox.askyesno("Abhängigkeit installieren", frage):
+            if is_linux:
+                frage += f"\nHinweis: Auf Linux ist oft dieser Befehl besser:\n{apt_cmd}"
+
+            if messagebox.askyesno("Abhängigkeit fehlt", frage):
                 try:
-                    # Pip vorbereiten (nur wenn wirklich installiert werden muss)
-                    ensure_pip()
-                    
-                    print(f"📥 Installiere {pip_name}...")
-                    # Installation über den aktuellen Python-Interpreter
-                    subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
-                    print(f"✅ {pip_name} erfolgreich installiert.")
+                    print(f"📥 Versuche Installation von {pip_name}...")
+                    # --break-system-packages erlaubt pip die Installation trotz PEP 668 Schutz
+                    subprocess.check_call([
+                        sys.executable, "-m", "pip", "install", 
+                        pip_name, "--break-system-packages"
+                    ])
+                    print(f"✅ {pip_name} wurde installiert.")
                 except Exception as e:
-                    messagebox.showerror("Fehler", f"Installation von {pip_name} fehlgeschlagen:\n{e}")
+                    error_text = f"Installation fehlgeschlagen: {e}"
+                    if is_linux:
+                        error_text += f"\n\nBitte nutze im Terminal:\n{apt_cmd}"
+                    messagebox.showerror("Fehler", error_text)
                     all_ready = False
             else:
-                messagebox.showwarning("Warnung", f"Ohne {pip_name} wird die App wahrscheinlich abstuerzen.")
                 all_ready = False
 
     root.destroy()
     return all_ready
 
 def start_main_app():
-    """Startet die eigentliche GUI-Datei."""
+    """Startet die pflanzen_gui.py."""
     try:
-        print("🚀 Lade Pflanzenprotokoll-Oberflaeche...")
-        # Hier wird deine eigentliche Datei importiert und gestartet
+        print("🚀 Alle Prüfungen bestanden. Starte GUI...")
         import pflanzen_gui
         app = pflanzen_gui.PflanzenApp()
         app.mainloop()
     except Exception as e:
-        error_msg = f"Kritischer Fehler beim Starten von pflanzen_gui.py:\n{e}"
+        error_msg = f"Fehler beim Starten der App: {e}"
         print(error_msg)
-        # Kurzes Notfall-Fenster für den Fehler
         temp_root = tk.Tk()
         temp_root.withdraw()
         messagebox.showerror("Programmfehler", error_msg)
         temp_root.destroy()
 
 if __name__ == "__main__":
-    # Schritt 1: Pakete prüfen
+    # Schritt 1: Einzelprüfung aller Pakete
     if check_and_install_packages():
-        # Schritt 2: Wenn alles okay ist, Haupt-App starten
+        # Schritt 2: Start bei Erfolg
         start_main_app()
     else:
-        print("❌ Start abgebrochen, da Komponenten fehlen.")
+        print("🛑 Start abgebrochen. Bitte installiere die fehlenden Pakete manuell.")
