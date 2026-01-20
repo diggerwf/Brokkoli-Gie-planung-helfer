@@ -156,7 +156,7 @@ class PflanzenApp(tk.Tk):
             ("Bio·Heaven", "Energie-Booster. Verbessert die Nährstoffaufnahme.", "2-5 ml/L. Gesamter Zyklus.", "Bio·Heaven.jpg"),
             ("Acti·Vera", "Pflanzenaktivator auf Aloe Vera Basis. Stärkt das Immunsystem.", "5 ml/L. Gießen oder als Blattspray.", "Acti·Vera.jpg"),
             ("Alg·A·Mic", "Vitalitäts-Booster aus Meeresalgen. Hilft bei Stress und Mangel.", "1-4 ml/L. Zur Erholung und Vorbeugung.", "Alg·A·Mic.jpg"),
-            ("CALMAG", "Schutz vor Calcium- und Magnesiummängeln, besonders wichtig bei weichem Wasser oder Umkehrosmose.", "0.3 - 1 ml/L.", "calmagic.jpg"),
+            ("CALMAG", "Schutz vor Calcium- und Magnesiummängeln, besonders wichtig bei weichem Wasser oder Umkehrosmose.", "0.3 - 1 ml/L.", "calmag.jpg"),
             ("Bio·Up", "Organischer pH-Regulator auf Huminsäurebasis. Erhöht den pH-Wert schonend, ohne das Bodenleben zu schädigen.", "0,1 ml/L hebt den pH-Wert um ca. 0,1 Punkte. Nach Bedarf anpassen.", "PH+.jpg"),
             ("Bio·Down", "Organischer pH-Senker auf Zitronensäurebasis. Senkt den pH-Wert schnell und effektiv, ohne die Mikroorganismen im Substrat zu beeinträchtigen.", "0,1 ml/L senkt den pH-Wert um ca. 0,1 Punkte. Schrittweise dosieren.", "ph-.jpg")
         ]
@@ -169,7 +169,7 @@ class PflanzenApp(tk.Tk):
             ("Bio·Heaven", "Energie-Booster. Verbessert die Nährstoffaufnahme.", "2-5 ml/L. Gesamter Zyklus.", "Bio·Heaven.jpg"),
             ("Acti·Vera", "Pflanzenaktivator auf Aloe Vera Basis. Stärkt das Immunsystem.", "5 ml/L. Gießen oder als Blattspray.", "Acti·Vera.jpg"),
             ("Alg·A·Mic", "Vitalitäts-Booster aus Meeresalgen. Hilft bei Stress und Mangel.", "1-4 ml/L. Zur Erholung und Vorbeugung.", "Alg·A·Mic.jpg"),
-            ("CALMAG", "Schutz vor Calcium- und Magnesiummängeln, besonders wichtig bei weichem Wasser oder Umkehrosmose.", "0.3 - 1 ml/L.", "calmagic.jpg"),
+            ("CALMAG", "Schutz vor Calcium- und Magnesiummängeln, besonders wichtig bei weichem Wasser oder Umkehrosmose.", "0.3 - 1 ml/L.", "calmag.jpg"),
             ("Bio·Up", "Organischer pH-Regulator auf Huminsäurebasis. Erhöht den pH-Wert schonend, ohne das Bodenleben zu schädigen.", "0,1 ml/L hebt den pH-Wert um ca. 0,1 Punkte. Nach Bedarf anpassen.", "PH+.jpg"),
             ("Bio·Down", "Organischer pH-Senker auf Zitronensäurebasis. Senkt den pH-Wert schnell und effektiv, ohne die Mikroorganismen im Substrat zu beeinträchtigen.", "0,1 ml/L senkt den pH-Wert um ca. 0,1 Punkte. Schrittweise dosieren.", "ph-.jpg")
         ]
@@ -633,4 +633,5 @@ class PflanzenApp(tk.Tk):
         except Exception as e: messagebox.showerror("Update Fehler", str(e))
 
 if __name__ == "__main__":
+
     app = PflanzenApp(); app.mainloop()
