@@ -6,12 +6,15 @@ from mysql.connector import errorcode
 PROTOKOLL_TABLE_NAME = 'pflanzenprotokoll'
 PLANUNG_TABLE_NAME = 'pflanzenplanung' 
 
-def get_db_connection(config, with_db=False):
-    """Versucht, eine Verbindung zur Datenbank herzustellen."""
+def get_db_connection(config, with_db=True):
+    """
+    Versucht, eine Verbindung zur Datenbank herzustellen.
+    Standardmäßig wird versucht, die in der Config angegebene DB direkt zu nutzen.
+    """
     port = config.get('port', 3306)
     
     db_args = {}
-    if with_db:
+    if with_db and 'database' in config:
         db_args['database'] = config['database']
         
     try:
@@ -41,7 +44,7 @@ def setup_database_and_table(cursor, db_name):
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name} DEFAULT CHARACTER SET 'utf8'")
         cursor.execute(f"USE {db_name}")
     except mysql.connector.Error as err:
-        return False, f"Fehler beim Erstellen/Auswählen der Datenbank: {err}"
+        return False, f"Fehler beim Erstellen oder Auswählen der Datenbank: {err}"
 
     # Protokoll-Tabelle (Ist-Werte)
     PROTOKOLL_DESCRIPTION = f"""
@@ -54,6 +57,8 @@ def setup_database_and_table(cursor, db_name):
       root_juice_ml_l FLOAT,
       calmag_ml_l FLOAT,
       bio_grow_ml_l FLOAT,
+      fish_mix_ml_l FLOAT,
+      bio_heaven_ml_l FLOAT,
       acti_alc_ml_l FLOAT,
       bio_bloom_ml_l FLOAT,
       top_max_ml_l FLOAT,
@@ -73,6 +78,8 @@ def setup_database_and_table(cursor, db_name):
       root_juice_ml_l FLOAT,
       calmag_ml_l FLOAT,
       bio_grow_ml_l FLOAT,
+      fish_mix_ml_l FLOAT,
+      bio_heaven_ml_l FLOAT,
       acti_alc_ml_l FLOAT,
       bio_bloom_ml_l FLOAT,
       top_max_ml_l FLOAT,
@@ -86,56 +93,65 @@ def setup_database_and_table(cursor, db_name):
         cursor.execute(PROTOKOLL_DESCRIPTION)
         cursor.execute(PLANUNG_DESCRIPTION)
         
-        # Sicherstellen, dass die Spalte ec_wert existiert (für Updates bestehender Tabellen)
+        # Spalten nachträglich hinzufügen, falls sie fehlen (Migration)
         for table in [PROTOKOLL_TABLE_NAME, PLANUNG_TABLE_NAME]:
+            # Fish-Mix
+            try:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN fish_mix_ml_l FLOAT AFTER bio_grow_ml_l")
+            except: pass
+            # Bio-Heaven
+            try:
+                cursor.execute(f"ALTER TABLE {table} ADD COLUMN bio_heaven_ml_l FLOAT AFTER fish_mix_ml_l")
+            except: pass
+            # EC-Wert
             try:
                 cursor.execute(f"ALTER TABLE {table} ADD COLUMN ec_wert FLOAT AFTER ph_wert_ziel")
-            except mysql.connector.Error as err:
-                if err.errno != 1060: # 1060 = Spalte existiert bereits, das ist okay
-                    print(f"Hinweis bei Alter Table {table}: {err.msg}")
-                
-        return True, "Datenbankstruktur erfolgreich eingerichtet."
+            except: pass
+
+        return True, "Datenbankstruktur erfolgreich eingerichtet oder aktualisiert."
     except mysql.connector.Error as err:
         return False, f"Fehler beim Erstellen der Tabellen: {err.msg}"
 
 
 def insert_pflanzen_data(cnx, datensatz):
-    """Fügt einen neuen IST-Datensatz (Protokoll) in die Tabelle ein und committet."""
+    """Fügt einen neuen IST-Datensatz (Protokoll) in die Tabelle ein."""
     cursor = cnx.cursor()
     
     add_log = (f"INSERT INTO {PROTOKOLL_TABLE_NAME} "
                "(pflanzen_name, woche, phase, lichtzyklus_h, root_juice_ml_l, "
-               "calmag_ml_l, bio_grow_ml_l, acti_alc_ml_l, bio_bloom_ml_l, "
-               "top_max_ml_l, ph_wert_ziel, ec_wert, erstellungsdatum) "
-               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+               "calmag_ml_l, bio_grow_ml_l, fish_mix_ml_l, bio_heaven_ml_l, acti_alc_ml_l, "
+               "bio_bloom_ml_l, top_max_ml_l, ph_wert_ziel, ec_wert, erstellungsdatum) "
+               "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
     try:
         cursor.execute(add_log, datensatz)
         last_id = cursor.lastrowid
         cnx.commit()
         cursor.close()
-        return True, f"Datensatz erfolgreich eingefügt. (ID: {last_id})"
+        return True, f"✅ Datensatz erfolgreich eingefügt. (ID: {last_id})"
     except mysql.connector.Error as err:
         cursor.close()
-        return False, f"Fehler beim Einfügen des Datensatzes: {err.msg}"
+        return False, f"❌ Fehler beim Einfügen des Datensatzes: {err.msg}"
 
 
 def save_pflanzen_plan(cnx, planungsdatensatz):
-    """Speichert oder aktualisiert einen SOLL-Datensatz (Planung) in der Tabelle."""
+    """Speichert oder aktualisiert einen SOLL-Datensatz in der Planungstabelle."""
     cursor = cnx.cursor()
     
     save_plan = f"""
     INSERT INTO {PLANUNG_TABLE_NAME} 
     (pflanzen_name, woche, phase, lichtzyklus_h, root_juice_ml_l, 
-     calmag_ml_l, bio_grow_ml_l, acti_alc_ml_l, bio_bloom_ml_l, 
-     top_max_ml_l, ph_wert_ziel, ec_wert) 
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+     calmag_ml_l, bio_grow_ml_l, fish_mix_ml_l, bio_heaven_ml_l, acti_alc_ml_l, 
+     bio_bloom_ml_l, top_max_ml_l, ph_wert_ziel, ec_wert) 
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     ON DUPLICATE KEY UPDATE
     phase = VALUES(phase),
     lichtzyklus_h = VALUES(lichtzyklus_h),
     root_juice_ml_l = VALUES(root_juice_ml_l),
     calmag_ml_l = VALUES(calmag_ml_l),
     bio_grow_ml_l = VALUES(bio_grow_ml_l),
+    fish_mix_ml_l = VALUES(fish_mix_ml_l),
+    bio_heaven_ml_l = VALUES(bio_heaven_ml_l),
     acti_alc_ml_l = VALUES(acti_alc_ml_l),
     bio_bloom_ml_l = VALUES(bio_bloom_ml_l),
     top_max_ml_l = VALUES(top_max_ml_l),
@@ -147,20 +163,19 @@ def save_pflanzen_plan(cnx, planungsdatensatz):
         cursor.execute(save_plan, planungsdatensatz)
         cnx.commit()
         cursor.close()
-        return True, "Planung erfolgreich gespeichert/aktualisiert."
+        return True, "✅ Planung erfolgreich gespeichert/aktualisiert."
     except mysql.connector.Error as err:
         cursor.close()
-        return False, f"Fehler beim Speichern der Planung: {err.msg}"
+        return False, f"❌ Fehler beim Speichern der Planung: {err.msg}"
 
 
 def get_pflanzen_plan(config, plant_name, week):
-    """Ruft den Plan für eine spezifische Pflanze und Woche ab."""
+    """Holt einen spezifischen Plan (Soll-Werte) aus der DB."""
     cnx, result = get_db_connection(config, with_db=True)
     if cnx is None:
         return None, None 
-
+        
     cursor = cnx.cursor()
-    
     try:
         query = f"SELECT * FROM {PLANUNG_TABLE_NAME} WHERE pflanzen_name = %s AND woche = %s"
         cursor.execute(query, (plant_name, week))
@@ -171,21 +186,19 @@ def get_pflanzen_plan(config, plant_name, week):
         cursor.close()
         cnx.close()
         return plan, column_names
-        
-    except mysql.connector.Error:
+    except:
         cursor.close()
         cnx.close()
         return None, None
 
 
 def fetch_all_data(config):
-    """Holt alle Protokolleinträge aus der Datenbank."""
+    """Holt alle Datensätze aus dem Protokoll für die Anzeige."""
     cnx, result = get_db_connection(config, with_db=True)
     if cnx is None:
         return None, result
-
+        
     cursor = cnx.cursor()
-    
     try:
         cursor.execute(f"SELECT * FROM {PROTOKOLL_TABLE_NAME} ORDER BY erstellungsdatum DESC")
         data = cursor.fetchall()
@@ -193,42 +206,36 @@ def fetch_all_data(config):
         cursor.close()
         cnx.close()
         return data, column_names
-        
     except mysql.connector.Error as err:
         cursor.close()
         cnx.close()
-        if err.errno == errorcode.ER_NO_SUCH_TABLE:
-            return [], f"⚠️ Tabelle '{PROTOKOLL_TABLE_NAME}' existiert nicht. Speichern Sie zuerst einen Datensatz."
-        elif err.errno == errorcode.ER_BAD_DB_ERROR:
-             return [], f"⚠️ Datenbank '{config['database']}' existiert nicht."
-        return None, f"Fehler beim Abrufen der Daten: {err.msg}"
+        return None, f"❌ Fehler beim Abrufen der Daten: {err.msg}"
 
 
 def delete_data_by_id(config, record_id):
-    """Löscht einen Datensatz anhand seiner ID."""
+    """Löscht einen spezifischen Datensatz anhand der ID."""
     cnx, result = get_db_connection(config, with_db=True)
     if cnx is None:
         return False, result
-
+        
     cursor = cnx.cursor()
-    
     try:
-        delete_query = f"DELETE FROM {PROTOKOLL_TABLE_NAME} WHERE id = %s"
-        cursor.execute(delete_query, (record_id,))
+        query = f"DELETE FROM {PROTOKOLL_TABLE_NAME} WHERE id = %s"
+        cursor.execute(query, (record_id,))
         cnx.commit()
         rows_affected = cursor.rowcount
         cursor.close()
         cnx.close()
         
         if rows_affected > 0:
-            return True, f"Datensatz (ID: {record_id}) erfolgreich gelöscht."
+            return True, f"✅ Datensatz (ID: {record_id}) erfolgreich gelöscht."
         else:
             return False, f"Datensatz mit ID {record_id} nicht gefunden."
             
     except mysql.connector.Error as err:
         cursor.close()
         cnx.close()
-        return False, f"Fehler beim Löschen des Datensatzes: {err.msg}"
+        return False, f"❌ Fehler beim Löschen des Datensatzes: {err.msg}"
 
 
 def test_db_connection(config):
@@ -255,6 +262,4 @@ def test_db_connection(config):
         elif err.errno == errorcode.ER_BAD_DB_ERROR:
              return False, f"⚠️ Datenbank '{config['database']}' existiert nicht. Wird beim Speichern erstellt."
         else:
-            return False, f"❌ Unbekannter Verbindungsfehler: {err.msg}"
-    except Exception as e:
-        return False, f"❌ Allgemeiner Fehler: {e}"
+            return False, f"❌ Fehler: {err.msg}"

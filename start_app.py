@@ -8,7 +8,8 @@ import os
 # Format: (Modulname für import, Name für pip, Kurzbeschreibung)
 REQUIRED_PACKAGES = [
     ("PIL", "Pillow", "fuer die Bildanzeige (Logo)"),
-    ("mysql.connector", "mysql-connector-python", "fuer die Datenbankverbindung (MySQL)")
+    ("mysql.connector", "mysql-connector-python", "fuer die Datenbankverbindung (MySQL)"),
+    ("pandas", "pandas", "fuer die Datenverarbeitung und Tabellen")
 ]
 
 def ensure_pip():
