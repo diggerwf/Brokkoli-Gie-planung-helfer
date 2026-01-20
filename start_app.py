@@ -34,11 +34,17 @@ def check_and_install_packages():
 
     for import_name, pip_name, description in REQUIRED_PACKAGES:
         try:
-            # Versuch, das Modul zu laden
-            __import__(import_name)
+            # Verbesserte Prüfung: Versucht das Modul wirklich zu laden
+            if import_name == "PIL":
+                from PIL import Image
+            elif import_name == "pandas":
+                import pandas as pd
+            else:
+                __import__(import_name)
+            
             print(f"✅ Modul vorhanden: {import_name}")
-        except ImportError:
-            print(f"❌ Modul fehlt: {import_name}")
+        except (ImportError, ModuleNotFoundError):
+            print(f"❌ Modul fehlt oder fehlerhaft: {import_name}")
             
             # Grafische Abfrage beim Nutzer
             frage = (f"Die Bibliothek '{pip_name}' ({description}) fehlt.\n\n"
@@ -50,6 +56,7 @@ def check_and_install_packages():
                     ensure_pip()
                     
                     print(f"📥 Installiere {pip_name}...")
+                    # Installation über den aktuellen Python-Interpreter
                     subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name])
                     print(f"✅ {pip_name} erfolgreich installiert.")
                 except Exception as e:
