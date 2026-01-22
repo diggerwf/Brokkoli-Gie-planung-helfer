@@ -175,9 +175,9 @@ class PflanzenApp(tk.Tk):
         ]
 
         substrate_data = [
-            ("Light·Mix", "Leicht vorgedüngtes Substrat. Volle Kontrolle über die Düngung.", "Düngen ab der ersten Woche möglich.", "Light Mix.jpg"),
-            ("All·Mix", "Stark vorgedüngtes Substrat. Hoher Puffergehalt.", "Düngen meist erst nach 2-3 Wochen nötig.", "All Mix.jpg"),
-            ("Coco·Mix", "Kokosfaser-Substrat für optimale Belüftung der Wurzeln.", "Behandlung ähnlich wie Light·Mix, CalMag beachten.", "coco mix.jpg")
+            ("Light·Mix", "Leicht vorgedüngtes Substrat. Volle Kontrolle über die Düngung.", "Düngen ab der ersten Woche möglich.", "Light-Mix.jpg"),
+            ("All·Mix", "Stark vorgedüngtes Substrat. Hoher Puffergehalt.", "Düngen meist erst nach 2-3 Wochen nötig.", "All-Mix.jpg"),
+            ("Coco·Mix", "Kokosfaser-Substrat für optimale Belüftung der Wurzeln.", "Behandlung ähnlich wie Light·Mix, CalMag beachten.", "coco-mix.jpg")
         ]
 
         # Registerkarten erstellen
@@ -635,3 +635,4 @@ class PflanzenApp(tk.Tk):
 if __name__ == "__main__":
 
     app = PflanzenApp(); app.mainloop()
+
