@@ -149,26 +149,26 @@ class PflanzenApp(tk.Tk):
         info_nb.pack(fill="both", expand=True)
 
         indoor_data = [
-            ("Root·Juice", "Wurzelstimulator für explosive Bewurzelung bei jungen Pflanzen.", "1-4 ml/L. In den ersten 1-2 Wochen.", "Root Juice.jpg"),
-            ("Bio·Grow", "Flüssiger Wachstumsdünger. Aktiviert die Bakterienflora im Substrat.", "1-4 ml/L. Bei jedem Gießen.", "Bio Grow.jpg"),
-            ("Bio·Bloom", "Volldünger für die Blütephase. Enthält N-P-K.", "1-4 ml/L. Ab Blütebeginn.", "Bio Bloom.jpg"),
-            ("Top·Max", "Blütenstimulator. Erhöht Gewicht und Größe.", "1-4 ml/L. Blütephase.", "Top Max.jpg"),
-            ("Bio·Heaven", "Energie-Booster. Verbessert die Nährstoffaufnahme.", "2-5 ml/L. Gesamter Zyklus.", "Bio Heaven.jpg"),
-            ("Acti·Vera", "Pflanzenaktivator auf Aloe Vera Basis. Stärkt das Immunsystem.", "5 ml/L. Gießen oder als Blattspray.", "Acti Vera.jpg"),
-            ("Alg·A·Mic", "Vitalitäts-Booster aus Meeresalgen. Hilft bei Stress und Mangel.", "1-4 ml/L. Zur Erholung und Vorbeugung.", "Alg A Mic.jpg"),
+            ("Root·Juice", "Wurzelstimulator für explosive Bewurzelung bei jungen Pflanzen.", "1-4 ml/L. In den ersten 1-2 Wochen.", "Root-Juice.jpg"),
+            ("Bio·Grow", "Flüssiger Wachstumsdünger. Aktiviert die Bakterienflora im Substrat.", "1-4 ml/L. Bei jedem Gießen.", "Bio-Grow.jpg"),
+            ("Bio·Bloom", "Volldünger für die Blütephase. Enthält N-P-K.", "1-4 ml/L. Ab Blütebeginn.", "Bio-Bloom.jpg"),
+            ("Top·Max", "Blütenstimulator. Erhöht Gewicht und Größe.", "1-4 ml/L. Blütephase.", "Top-Max.jpg"),
+            ("Bio·Heaven", "Energie-Booster. Verbessert die Nährstoffaufnahme.", "2-5 ml/L. Gesamter Zyklus.", "Bio-Heaven.jpg"),
+            ("Acti·Vera", "Pflanzenaktivator auf Aloe Vera Basis. Stärkt das Immunsystem.", "5 ml/L. Gießen oder als Blattspray.", "Acti-Vera.jpg"),
+            ("Alg·A·Mic", "Vitalitäts-Booster aus Meeresalgen. Hilft bei Stress und Mangel.", "1-4 ml/L. Zur Erholung und Vorbeugung.", "Alg-A-Mic.jpg"),
             ("CALMAG", "Schutz vor Calcium- und Magnesiummängeln, besonders wichtig bei weichem Wasser oder Umkehrosmose.", "0.3 - 1 ml/L.", "calmagic.jpg"),
             ("Bio·Up", "Organischer pH-Regulator auf Huminsäurebasis. Erhöht den pH-Wert schonend, ohne das Bodenleben zu schädigen.", "0,1 ml/L hebt den pH-Wert um ca. 0,1 Punkte. Nach Bedarf anpassen.", "PH+.jpg"),
             ("Bio·Down", "Organischer pH-Senker auf Zitronensäurebasis. Senkt den pH-Wert schnell und effektiv, ohne die Mikroorganismen im Substrat zu beeinträchtigen.", "0,1 ml/L senkt den pH-Wert um ca. 0,1 Punkte. Schrittweise dosieren.", "ph-.jpg")
         ]
 
         outdoor_data = [
-            ("Root·Juice", "Wurzelstimulator für explosive Bewurzelung bei jungen Pflanzen.", "1-4 ml/L. In den ersten 1-2 Wochen.", "Root Juice.jpg"),
-            ("Fish·Mix", "Outdoor-Spezialist. Konditioniert das Substrat und fördert Mikroorganismen.", "1-4 ml/L. Ersetzt Bio·Grow im Freiland.", "Fish Mix.jpg"),
-            ("Bio·Bloom", "Volldünger für die Blütephase. Enthält N-P-K.", "1-4 ml/L. Ab Blütebeginn.", "Bio Bloom.jpg"),
-            ("Top·Max", "Blütenstimulator. Erhöht Gewicht und Größe.", "1-4 ml/L. Blütephase.", "Top Max.jpg"),
-            ("Bio·Heaven", "Energie-Booster. Verbessert die Nährstoffaufnahme.", "2-5 ml/L. Gesamter Zyklus.", "Bio Heaven.jpg"),
-            ("Acti·Vera", "Pflanzenaktivator auf Aloe Vera Basis. Stärkt das Immunsystem.", "5 ml/L. Gießen oder als Blattspray.", "Acti Vera.jpg"),
-            ("Alg·A·Mic", "Vitalitäts-Booster aus Meeresalgen. Hilft bei Stress und Mangel.", "1-4 ml/L. Zur Erholung und Vorbeugung.", "Alg A Mic.jpg"),
+            ("Root·Juice", "Wurzelstimulator für explosive Bewurzelung bei jungen Pflanzen.", "1-4 ml/L. In den ersten 1-2 Wochen.", "Root-Juice.jpg"),
+            ("Fish·Mix", "Outdoor-Spezialist. Konditioniert das Substrat und fördert Mikroorganismen.", "1-4 ml/L. Ersetzt Bio·Grow im Freiland.", "Fish-Mix.jpg"),
+            ("Bio·Bloom", "Volldünger für die Blütephase. Enthält N-P-K.", "1-4 ml/L. Ab Blütebeginn.", "Bio-Bloom.jpg"),
+            ("Top·Max", "Blütenstimulator. Erhöht Gewicht und Größe.", "1-4 ml/L. Blütephase.", "Top-Max.jpg"),
+            ("Bio·Heaven", "Energie-Booster. Verbessert die Nährstoffaufnahme.", "2-5 ml/L. Gesamter Zyklus.", "Bio-Heaven.jpg"),
+            ("Acti·Vera", "Pflanzenaktivator auf Aloe Vera Basis. Stärkt das Immunsystem.", "5 ml/L. Gießen oder als Blattspray.", "Acti-Vera.jpg"),
+            ("Alg·A·Mic", "Vitalitäts-Booster aus Meeresalgen. Hilft bei Stress und Mangel.", "1-4 ml/L. Zur Erholung und Vorbeugung.", "Alg-A-Mic.jpg"),
             ("CALMAG", "Schutz vor Calcium- und Magnesiummängeln, besonders wichtig bei weichem Wasser oder Umkehrosmose.", "0.3 - 1 ml/L.", "calmagic.jpg"),
             ("Bio·Up", "Organischer pH-Regulator auf Huminsäurebasis. Erhöht den pH-Wert schonend, ohne das Bodenleben zu schädigen.", "0,1 ml/L hebt den pH-Wert um ca. 0,1 Punkte. Nach Bedarf anpassen.", "PH+.jpg"),
             ("Bio·Down", "Organischer pH-Senker auf Zitronensäurebasis. Senkt den pH-Wert schnell und effektiv, ohne die Mikroorganismen im Substrat zu beeinträchtigen.", "0,1 ml/L senkt den pH-Wert um ca. 0,1 Punkte. Schrittweise dosieren.", "ph-.jpg")
@@ -633,4 +633,5 @@ class PflanzenApp(tk.Tk):
         except Exception as e: messagebox.showerror("Update Fehler", str(e))
 
 if __name__ == "__main__":
+
     app = PflanzenApp(); app.mainloop()
