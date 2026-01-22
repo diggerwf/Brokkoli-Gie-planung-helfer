@@ -9,7 +9,8 @@ import os
 REQUIRED_PACKAGES = [
     ("PIL", "Pillow", "fuer die Bildanzeige (Logo)"),
     ("mysql.connector", "mysql-connector-python", "fuer die Datenbankverbindung (MySQL)"),
-    ("pandas", "pandas", "fuer die Datenverarbeitung und Tabellen")
+    ("pandas", "pandas", "fuer die Datenverarbeitung und Tabellen"),
+    ("rich", "rich", "fuer schoene Konsolenausgaben")
 ]
 
 def ensure_pip():
@@ -45,6 +46,11 @@ def check_and_install_packages():
                 pd.DataFrame()
             elif import_name == "PIL":
                 from PIL import Image, ImageTk
+            elif import_name == "rich":
+                import rich
+                from rich.console import Console
+                # Testet, ob die Hauptkomponente von Rich geladen werden kann
+                _ = Console()
             else:
                 __import__(import_name)
             
